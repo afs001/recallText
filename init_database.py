@@ -8,7 +8,7 @@
 from abc import ABC, abstractmethod
 
 
-class DocsEmbeddingFlow(ABC):
+class DocsEmbeddingFlowBase(ABC):
 
     @abstractmethod
     def do_init_by_docs(self):
