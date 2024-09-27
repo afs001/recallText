@@ -7,12 +7,12 @@
 from __future__ import annotations
 
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 
 from langchain.vectorstores import VectorStore
 
 
-class BaseRetrieverService(metaclass=ABCMeta):
+class BaseRetrieverService(ABC):
     def __init__(self, **kwargs):
         self.do_init(**kwargs)
 
