@@ -69,3 +69,18 @@ class DocsEmbeddingFlow(DocsEmbeddingFlowBase):
 
     def embedding_text(self):
         pass
+
+
+def doc2vector(docs=None):
+    """
+    Convert doc to vector.
+    :param docs:
+    :return:
+    """
+    doc_tool = DocsEmbeddingFlow()
+
+    pass
+
+
+if __name__ == '__main__':
+    doc2vector()
