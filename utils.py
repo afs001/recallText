@@ -1,0 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+@author: wang
+@time: 2024/9/27 19:50
+"""
+
+
+def out_format():
+    pass
