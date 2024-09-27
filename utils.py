@@ -3,8 +3,13 @@
 """
 @author: wang
 @time: 2024/9/27 19:50
+@desc: Final result evaluation and formatted output
 """
 
 
-def out_format():
+def evaluate():
+    pass
+
+
+def format_output():
     pass

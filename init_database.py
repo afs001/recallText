@@ -7,6 +7,15 @@
 """
 
 
-class DocsFlow:
+class DocsEmbeddingFlow:
     def __init__(self):
+        pass
+
+    def init_all_docs(self):
+        pass
+
+    def parse_pdf(self):
+        pass
+
+    def chunk(self):
         pass
