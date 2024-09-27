@@ -49,3 +49,23 @@ class DocsEmbeddingFlowBase(ABC):
         :return:
         """
         pass
+
+
+class DocsEmbeddingFlow(DocsEmbeddingFlowBase):
+    def __init__(self):
+        pass
+
+    def do_init_by_docs(self):
+        pass
+
+    def parse_pdf(self):
+        pass
+
+    def split_text(self):
+        pass
+
+    def chunk_text(self):
+        pass
+
+    def embedding_text(self):
+        pass
