@@ -14,7 +14,7 @@ sys.path.append(str(root_path))
 from pprint import pprint
 
 test_files = {
-    "ocr_test.pdf": str(root_path / "chatText" / "tests" / "samples" / "AF01_test.pdf"),
+    "ocr_test.pdf": str(root_path / "chatText" / "tests" / "samples" / "A_doc_test" / "AF01_test.pdf"),
 }
 
 
