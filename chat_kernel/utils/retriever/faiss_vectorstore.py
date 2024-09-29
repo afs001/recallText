@@ -10,7 +10,7 @@ from __future__ import annotations
 from langchain.vectorstores import VectorStore
 from langchain_core.retrievers import BaseRetriever
 
-from chat_kernel.retriever.base import BaseRetrieverService
+from chat_kernel.utils.retriever.base import BaseRetrieverService
 
 
 class VectorstoreRetrieverService(BaseRetrieverService):
