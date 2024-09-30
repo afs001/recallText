@@ -13,9 +13,10 @@ from chat_kernel.utils.splitter import ChineseTextSplitter
 from tests.test_pdfloader import test_rapidocrpdfloader
 
 
-def test_textsplitter(doc_lst: List[Document]):
+def test_textsplitter(doc):
     text_splitter = ChineseTextSplitter()
-    splited_docs = text_splitter.split_documents(doc_lst)
+    # splited_docs = text_splitter.split_documents(doc)
+    splited_docs = text_splitter.split_text(doc[0].page_content)
     pprint(splited_docs)
 
 
