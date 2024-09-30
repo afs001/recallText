@@ -29,7 +29,8 @@ def test_rapidocrpdfloader():
             and len(docs) > 0
             and isinstance(docs[0].page_content, str)
     )
+    return docs
 
 
 if __name__ == '__main__':
-    test_rapidocrpdfloader()
+    docs = test_rapidocrpdfloader()

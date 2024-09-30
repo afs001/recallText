@@ -170,6 +170,15 @@ class Files2EmbeddingFlow:
                   chunk_overlap: int = OVERLAP_SIZE,
                   text_splitter: TextSplitter = None,
                   ):
+        """
+        将文件加载为文本
+        :param zh_title_enhance: 是否增强中文标题
+        :param refresh: 是否重新加载
+        :param chunk_size: 分块大小
+        :param chunk_overlap: 分块重叠大小
+        :param text_splitter: 分块器
+        :return: 返回加载后的文本
+        """
         if self.splited_docs is None or refresh:
             docs = self.file2docs()
             self.splited_docs = self.docs2texts(
