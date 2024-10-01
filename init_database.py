@@ -129,7 +129,7 @@ def make_text_splitter(splitter_name, chunk_size, chunk_overlap):
     return text_splitter
 
 
-class Files2EmbeddingFlow:
+class KnowledgeFile:
     def __init__(self,
                  filename: str,
                  knowledge_base_name: str,
@@ -137,8 +137,6 @@ class Files2EmbeddingFlow:
         """
         对应知识库目录中的文件，必须是磁盘上存在的才能进行向量化等操作。
         """
-        super(Files2EmbeddingFlow, self).__init__()
-
         self.kb_name = knowledge_base_name
         self.filename = str(Path(filename).as_posix())
         self.ext = os.path.splitext(filename)[-1].lower()
@@ -241,7 +239,7 @@ class Files2EmbeddingFlow:
 if __name__ == '__main__':
     from pprint import pprint
 
-    kb_file = Files2EmbeddingFlow(
+    kb_file = KnowledgeFile(
         filename="AF01_test.pdf",
         knowledge_base_name="samples"
     )

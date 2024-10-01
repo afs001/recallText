@@ -7,22 +7,20 @@
 import os
 from abc import abstractmethod, ABC
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from langchain_core.documents import Document
 
+from chat_kernel.configs.model_configs import VECTOR_SEARCH_TOP_K
+from init_database import get_kb_path, get_doc_path, KnowledgeFile
+
 
 class KBService(ABC):
-    def __init__(
-        self,
-        knowledge_base_name: str,
-        kb_info: str = None,
-        embed_model: str = get_default_embedding(),
-    ):
+    def __init__(self,
+                knowledge_base_name: str,
+                embed_model: str = get_default_embedding(),
+                ):
         self.kb_name = knowledge_base_name
-        self.kb_info = kb_info or Settings.kb_settings.KB_INFO.get(
-            knowledge_base_name, f"关于{knowledge_base_name}的知识库"
-        )
         self.embed_model = embed_model
         self.kb_path = get_kb_path(self.kb_name)
         self.doc_path = get_doc_path(self.kb_name)
@@ -158,8 +156,8 @@ class KBService(ABC):
     def search_docs(
         self,
         query: str,
-        top_k: int = Settings.kb_settings.VECTOR_SEARCH_TOP_K,
-        score_threshold: float = Settings.kb_settings.SCORE_THRESHOLD,
+        top_k: int = VECTOR_SEARCH_TOP_K,
+        score_threshold: float = SCORE_THRESHOLD,
     ) -> List[Document]:
         if not self.check_embed_model()[0]:
             return []

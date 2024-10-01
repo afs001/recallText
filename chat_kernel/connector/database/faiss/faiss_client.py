@@ -7,12 +7,8 @@
 from langchain_community.vectorstores import FAISS
 from langchain_community.docstore import InMemoryDocstore
 from langchain_core.documents import Document
-from qanything_kernel.configs.model_config import VECTOR_SEARCH_TOP_K, FAISS_LOCATION, FAISS_CACHE_SIZE
 from typing import Optional, Union, Callable, Dict, Any, List, Tuple
 from langchain_community.vectorstores.faiss import dependable_faiss_import
-from qanything_kernel.utils.custom_log import debug_logger
-from qanything_kernel.connector.database.mysql.mysql_client import KnowledgeBaseManager
-from qanything_kernel.utils.general_utils import num_tokens
 from functools import lru_cache
 import shutil
 import stat
@@ -20,9 +16,6 @@ import os
 import platform
 
 os_system = platform.system()
-
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'  # 可能是由于是MacOS系统的原因
-
 
 class SelfInMemoryDocstore(InMemoryDocstore):
     def add(self, texts: Dict[str, Document]) -> None:
@@ -43,7 +36,6 @@ class SelfInMemoryDocstore(InMemoryDocstore):
 
 @lru_cache(FAISS_CACHE_SIZE)
 def load_vector_store(faiss_index_path, embeddings):
-    debug_logger.info(f'load faiss index: {faiss_index_path}')
     return FAISS.load_local(faiss_index_path, embeddings, allow_dangerous_deserialization=True)
 
 
