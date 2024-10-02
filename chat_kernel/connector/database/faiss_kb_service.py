@@ -62,10 +62,7 @@ class FaissKBService(KBService):
 
     def clear(self):
         """清空知识库"""
-        self.index = None
-        self.documents = []
-        self.embeddings = []
-        self.is_initialized = False
+        pass
 
 
 if __name__ == "__main__":
