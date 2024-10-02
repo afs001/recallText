@@ -1,4 +1,4 @@
-# ChatText
+# RecallText
 ## Main Flow
 ![Main](./source/imgs/img.png)
 ## Query Flow
