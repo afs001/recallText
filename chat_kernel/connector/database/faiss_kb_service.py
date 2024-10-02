@@ -10,121 +10,66 @@ from typing import Dict, List, Tuple
 
 from langchain.docstore.document import Document
 
+from chat_kernel.configs.model_configs import EMBEDDING_MODEL_PATH
 from chat_kernel.connector.database.base import KBService
+from chat_kernel.connector.embedding.embedding_for_vector import embedding
 from init_database import KnowledgeFile, get_kb_path
 
-
 class FaissKBService(KBService):
-    vs_path: str
-    kb_path: str
-    vector_name: str = None
+    def __init__(self):
+        super(FaissKBService, self).__init__()
+        self.index = None  # FAISS索引
+        self.documents = []  # 文档元数据
+        self.embeddings = []  # 存储向量
+        self.embedding_dim = 0  # 向量维度
+        self.is_initialized = False  # 标志索引是否初始化
+        self.emb_model_path = EMBEDDING_MODEL_PATH
 
-    def get_kb_path(self):
-        return get_kb_path(self.kb_name)
+    def _load_vector(self):
+        """嵌入模型"""
+        return embedding.init_embedding_model(model_path=self.emb_model_path)
 
-    def load_vector_store(self) -> ThreadSafeFaiss:
-        return kb_faiss_pool.load_vector_store(
-            kb_name=self.kb_name,
-            vector_name=self.vector_name,
-            embed_model=self.embed_model,
+    def add_document(self, kb_file: KnowledgeFile, **kwargs) -> List[Dict]:
+        docs = kb_file.docs2texts(kb_file.file2docs())
+
+        texts = [x.page_content for x in docs]
+        metas = [x.metadata for x in docs]
+        # 对分块后的文本进行嵌入
+        embeddings = self._load_vector().embed_documents(texts)
+        ids = self._load_vector().add_embeddings(
+            text_embeddings=zip(texts, embeddings), metadatas=metas
         )
 
-    def save_vector_store(self):
-        self.load_vector_store().save(self.vs_path)
+        if not kwargs.get("not_refresh_vs_cache"):
+            self._load_vector().save_local(self.vs_path)
 
-    def get_doc_by_ids(self, ids: List[str]) -> List[Document]:
-        with self.load_vector_store().acquire() as vs:
-            return [vs.docstore._dict.get(id) for id in ids]
-
-    def del_doc_by_ids(self, ids: List[str]) -> bool:
-        with self.load_vector_store().acquire() as vs:
-            vs.delete(ids)
-
-    def do_init(self):
-        self.vector_name = self.vector_name or self.embed_model.replace(":", "_")
-        self.kb_path = self.get_kb_path()
-        self.vs_path = self.get_vs_path()
-
-    def do_create_kb(self):
-        if not os.path.exists(self.vs_path):
-            os.makedirs(self.vs_path)
-        self.load_vector_store()
-
-    def do_drop_kb(self):
-        self.clear_vs()
-        try:
-            shutil.rmtree(self.kb_path)
-        except Exception:
-            pass
-
-    def do_search(
-        self,
-        query: str,
-        top_k: int,
-        score_threshold: float = SCORE_THRESHOLD,
-    ) -> List[Tuple[Document, float]]:
-        with self.load_vector_store().acquire() as vs:
-            retriever = get_Retriever("ensemble").from_vectorstore(
-                vs,
-                top_k=top_k,
-                score_threshold=score_threshold,
-            )
-            docs = retriever.get_relevant_documents(query)
-        return docs
-
-    def do_add_doc(
-        self,
-        docs: List[Document],
-        **kwargs,
-    ) -> List[Dict]:
-        texts = [x.page_content for x in docs]
-        metadatas = [x.metadata for x in docs]
-        with self.load_vector_store().acquire() as vs:
-            embeddings = vs.embeddings.embed_documents(texts)
-            ids = vs.add_embeddings(
-                text_embeddings=zip(texts, embeddings), metadatas=metadatas
-            )
-            if not kwargs.get("not_refresh_vs_cache"):
-                vs.save_local(self.vs_path)
         doc_infos = [{"id": id, "metadata": doc.metadata} for id, doc in zip(ids, docs)]
         return doc_infos
 
-    def do_delete_doc(self, kb_file: KnowledgeFile, **kwargs):
-        with self.load_vector_store().acquire() as vs:
-            ids = [
-                k
-                for k, v in vs.docstore._dict.items()
-                if v.metadata.get("source").lower() == kb_file.filename.lower()
-            ]
-            if len(ids) > 0:
-                vs.delete(ids)
-            if not kwargs.get("not_refresh_vs_cache"):
-                vs.save_local(self.vs_path)
-        return ids
+    def search(self, query, k=5):
+        """根据查询检索相似片段"""
+        pass
 
-    def do_clear_vs(self):
-        with kb_faiss_pool.atomic:
-            kb_faiss_pool.pop((self.kb_name, self.vector_name))
-        try:
-            shutil.rmtree(self.vs_path)
-        except Exception:
-            ...
-        os.makedirs(self.vs_path, exist_ok=True)
+    def update_document(self, document_id, new_document):
+        """更新指定文档，需实现索引更新逻辑"""
+        # 这需要更复杂的逻辑，通常是删除旧索引然后添加新索引
+        raise NotImplementedError("Update functionality is not implemented yet.")
 
-    def exist_doc(self, file_name: str):
-        if super().exist_doc(file_name):
-            return "in_db"
+    def remove_document(self, document_id):
+        """移除指定文档，需实现索引更新逻辑"""
+        # 这也需要复杂的逻辑来处理索引更新
+        raise NotImplementedError("Remove functionality is not implemented yet.")
 
-        content_path = os.path.join(self.kb_path, "content")
-        if os.path.isfile(os.path.join(content_path, file_name)):
-            return "in_folder"
-        else:
-            return False
+    def clear(self):
+        """清空知识库"""
+        self.index = None
+        self.documents = []
+        self.embeddings = []
+        self.is_initialized = False
 
 
 if __name__ == "__main__":
-    faissService = FaissKBService("test")
-    faissService.add_doc(KnowledgeFile("README.md", "test"))
-    faissService.delete_doc(KnowledgeFile("README.md", "test"))
-    faissService.do_drop_kb()
-    print(faissService.search_docs("如何启动api服务"))
+    faissService = FaissKBService()
+    faissService.add_document(KnowledgeFile("README.md", "test"))
+    faissService.remove_document(KnowledgeFile("README.md", "test"))
+    print(faissService.search("如何启动api服务"))

@@ -15,6 +15,9 @@ import stat
 import os
 import platform
 
+from chat_kernel.configs.db_configs import FAISS_CACHE_SIZE, FAISS_LOCATION
+from chat_kernel.configs.model_configs import VECTOR_SEARCH_TOP_K
+
 os_system = platform.system()
 
 class SelfInMemoryDocstore(InMemoryDocstore):
@@ -40,8 +43,7 @@ def load_vector_store(faiss_index_path, embeddings):
 
 
 class FaissClient:
-    def __init__(self, mysql_client: KnowledgeBaseManager, embeddings):
-        self.mysql_client: KnowledgeBaseManager = mysql_client
+    def __init__(self, embeddings):
         self.embeddings = embeddings
         self.faiss_client: FAISS = None
         self.kb_ids: List[str] = []
@@ -57,29 +59,31 @@ class FaissClient:
                 faiss = dependable_faiss_import()
                 index = faiss.IndexFlatL2(768)
                 docstore = SelfInMemoryDocstore()
-                debug_logger.info(f'init FAISS kb_id: {kb_id}')
+                # debug_logger.info(f'init FAISS kb_id: {kb_id}')
                 faiss_client: FAISS = FAISS(self.embeddings, index, docstore, index_to_docstore_id={})
             if self.faiss_client is None:
                 self.faiss_client = faiss_client
             else:
                 try:
                     self.faiss_client.merge_from(faiss_client)
-                    debug_logger.info(f'merge FAISS kb_id: {kb_id}')
+                    # debug_logger.info(f'merge FAISS kb_id: {kb_id}')
                 except ValueError:
                     raise ValueError(f'遗留数据与新版本不匹配，请删除{os.path.dirname(FAISS_LOCATION)}文件夹（清空所有知识库）后重新启动服务并重新创建知识库')
-        debug_logger.info(f'FAISS load kb_ids: {kb_ids}')
+        # debug_logger.info(f'FAISS load kb_ids: {kb_ids}')
 
     async def search(self, kb_ids, query, filter: Optional[Union[Callable, Dict[str, Any]]] = None,
                      top_k=VECTOR_SEARCH_TOP_K):
+        """
+        search documents by query
+        """
         if self.faiss_client is None or self.kb_ids != kb_ids:
             self._load_kb_to_memory(kb_ids)
         # filter = {'page': 1}
         if filter is None:
             filter = {}
-        debug_logger.info(f'FAISS search: {query}, {filter}, {top_k}')
-        docs_with_score = await self.faiss_client.asimilarity_search_with_score(query, k=top_k, filter=filter,
-                                                                                fetch_k=200)
-        debug_logger.info(f'FAISS search result number: {len(docs_with_score)}')
+        # debug_logger.info(f'FAISS search: {query}, {filter}, {top_k}')
+        docs_with_score = await self.faiss_client.asimilarity_search_with_score(query, k=top_k, filter=filter, fetch_k=200)
+        # debug_logger.info(f'FAISS search result number: {len(docs_with_score)}')
         for doc, score in docs_with_score:
             doc.metadata['score'] = score
         docs = [doc for doc, score in docs_with_score]

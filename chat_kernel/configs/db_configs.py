@@ -52,3 +52,7 @@ TEXT_SPLITTER_NAME: str = "ChineseRecursiveTextSplitter"
 # EMBEDDING_KEYWORD_FILE: str = "embedding_keywords.txt"
 # """Embedding模型定制词语的词表文件"""
 
+# FAISS 相关设置
+FAISS_CACHE_SIZE = 256
+FAISS_LOCATION = ""
+
