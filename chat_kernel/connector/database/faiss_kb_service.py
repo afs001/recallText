@@ -50,7 +50,7 @@ class FaissKBService(KBService):
 
         if not kwargs.get("not_refresh_vs_cache"):
             vector_store.save_local(self.vb_path)
-
+        # TODO how to relate the document_id with the document
         num_docs = vector_store.index.ntotal
         print(num_docs)
         print(vector_store.index_to_docstore_id)
