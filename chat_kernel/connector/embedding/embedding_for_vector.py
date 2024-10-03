@@ -23,7 +23,7 @@ class TextEmbeddings:
             model_kwargs = {'device': self.device}
         )
 
-embedding = TextEmbeddings()
+embedding_model = TextEmbeddings()
 
 
 

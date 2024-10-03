@@ -17,4 +17,4 @@ VECTOR_SEARCH_TOP_K = 30
 VECTOR_SEARCH_SCORE_THRESHOLD = 0.3
 
 
-EMBEDDING_MODEL_PATH = "E:/Transformers/bge-base-en-v1.5"
+EMBEDDING_MODEL_PATH = "E:/Transformers/bge-large-zh-v1.5"

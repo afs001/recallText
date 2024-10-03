@@ -221,7 +221,7 @@ class KnowledgeFile:
         if not docs:
             return []
 
-        print(f"文档切分示例：{docs[0]}")
+        # print(f"文档切分示例：{docs[0]}")
         if zh_title_enhance:
             docs = func_zh_title_enhance(docs)
         self.splited_docs = docs
@@ -245,6 +245,8 @@ if __name__ == '__main__':
         knowledge_base_name="samples"
     )
     faissService.add_document(kb_file)
+    res = faissService.search("网络安全是?")
+    print(res)
     # kb_file.text_splitter_name = "RecursiveCharacterTextSplitter"
     # docs = kb_file.file2docs()
     # # pprint(docs[-1])
