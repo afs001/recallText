@@ -53,6 +53,6 @@ TEXT_SPLITTER_NAME: str = "ChineseRecursiveTextSplitter"
 # """Embedding模型定制词语的词表文件"""
 
 # FAISS 相关设置
-FAISS_CACHE_SIZE = 256
-FAISS_LOCATION = ""
+FAISS_INDEX_SIZE = 256
+FAISS_LOCATION = "chat_kernel/connector/database/faiss/"
 

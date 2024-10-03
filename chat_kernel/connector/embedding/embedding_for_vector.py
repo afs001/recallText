@@ -6,24 +6,22 @@
 """
 from typing import List
 
-import requests
-from langchain_core.embeddings import Embeddings
-from sentence_transformers import SentenceTransformer
+import torch
+from langchain_huggingface import HuggingFaceEmbeddings
+
+from chat_kernel.configs.model_configs import EMBEDDING_MODEL_PATH
 
 
-class TextEmbeddings(Embeddings):
+class TextEmbeddings:
     def __init__(self):
-        self.model = None
-        super(TextEmbeddings, self).__init__()
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        assert self.device == 'cuda', "No GPU available!"
 
-    def init_embedding_model(self, model_path: str):
-        self.model = SentenceTransformer(model_path)
-
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        pass
-
-    def embed_query(self, text: str) -> List[float]:
-        pass
+    def init_embedding_model(self, model_path: str = EMBEDDING_MODEL_PATH):
+        return HuggingFaceEmbeddings(
+            model_name=model_path,
+            model_kwargs = {'device': self.device}
+        )
 
 embedding = TextEmbeddings()
 

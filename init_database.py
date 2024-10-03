@@ -16,6 +16,7 @@ from langchain_core.documents import Document
 from langchain_text_splitters import TextSplitter, MarkdownHeaderTextSplitter
 
 from chat_kernel.configs.db_configs import *
+from chat_kernel.connector.database import faissService
 from chat_kernel.utils.loader.pdf_loader import OCRPDFLoader
 from chat_kernel.utils.splitter import (
     zh_title_enhance as func_zh_title_enhance,
@@ -243,9 +244,10 @@ if __name__ == '__main__':
         filename="AF01_test.pdf",
         knowledge_base_name="samples"
     )
-    kb_file.text_splitter_name = "RecursiveCharacterTextSplitter"
-    docs = kb_file.file2docs()
-    # pprint(docs[-1])
-    texts = kb_file.docs2texts(docs)
-    for text in texts:
-        print(text)
+    faissService.add_document(kb_file)
+    # kb_file.text_splitter_name = "RecursiveCharacterTextSplitter"
+    # docs = kb_file.file2docs()
+    # # pprint(docs[-1])
+    # texts = kb_file.docs2texts(docs)
+    # for text in texts:
+    #     print(text)
