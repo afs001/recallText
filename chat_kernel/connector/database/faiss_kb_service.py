@@ -50,12 +50,15 @@ class FaissKBService(KBService):
         similar_docs = self._load_vector_store().similarity_search(query, k)
 
         # 将最相似的文本块和它们的路径聚合为一个结果
-        aggregated_result = ""
+        aggregated_result = {}
         for i, doc in enumerate(similar_docs):
             content = doc.page_content
             path = doc.metadata["source"]
 
-            aggregated_result += f"Document {i + 1} (Path: {path}):\n{content}\n\n"
+            aggregated_result.update({
+                "content": content,
+                "path": path
+            })
 
         return aggregated_result
 
