@@ -7,6 +7,7 @@
 """
 import importlib
 import os
+import time
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List
@@ -28,7 +29,7 @@ def get_kb_path(knowledge_base_name: str):
 
 
 def get_doc_path(knowledge_base_name: str):
-    return os.path.join(get_kb_path(knowledge_base_name), "A_doc_test")
+    return os.path.join(get_kb_path(knowledge_base_name), TEXT_SPLITTER_PATH)
 
 
 def get_file_path(knowledge_base_name: str, doc_name: str):
@@ -239,17 +240,29 @@ class KnowledgeFile:
 
 if __name__ == '__main__':
     from pprint import pprint
+    """
+    实现依次读取source/A_list/A_document中文件名
+    """
+    # List all files in the given directory
+    filenames = os.listdir("source/A_list/A_document")
+    # Filter out directories, only keep files
+    filenames = [f for f in filenames if os.path.isfile(os.path.join("source/A_list/A_document", f))]
 
-    kb_file = KnowledgeFile(
-        filename="AF01_test.pdf",
-        knowledge_base_name="samples"
-    )
-    faissService.add_document(kb_file)
-    res = faissService.search("网络安全是?")
-    print(res)
-    # kb_file.text_splitter_name = "RecursiveCharacterTextSplitter"
-    # docs = kb_file.file2docs()
-    # # pprint(docs[-1])
-    # texts = kb_file.docs2texts(docs)
-    # for text in texts:
-    #     print(text)
+    # Print filenames sequentially
+    for filename in filenames:
+        kb_file = KnowledgeFile(
+            filename=filename,
+            knowledge_base_name="A_list"
+        )
+        faissService.add_document(kb_file)
+        time.sleep(2)
+        print("{} 文档已加载...".format(filename))
+
+        # res = faissService.search("网络安全是?", k=1)
+        # print(res)
+        # kb_file.text_splitter_name = "RecursiveCharacterTextSplitter"
+        # docs = kb_file.file2docs()
+        # # pprint(docs[-1])
+        # texts = kb_file.docs2texts(docs)
+        # for text in texts:
+        #     print(text)

@@ -4,21 +4,13 @@
 @author: wang
 @time: 2024/9/27 21:38
 """
-import os
-import shutil
 from pathlib import Path
-from typing import Dict, List, Tuple
-
-from langchain.docstore.document import Document
-from langchain_community.vectorstores import FAISS
-from unstructured_client.utils import retry
 
 from chat_kernel.configs.db_configs import FAISS_LOCATION
 from chat_kernel.configs.model_configs import EMBEDDING_MODEL_PATH
 from chat_kernel.connector.database.base import KBService
 from chat_kernel.connector.database.faiss import faiss_vector_store
 from chat_kernel.connector.embedding import embedding_model
-from chat_kernel.connector.embedding.embedding_for_vector import TextEmbeddings
 
 root_path = Path(__file__).parent.parent.parent.parent
 
@@ -38,24 +30,18 @@ class FaissKBService(KBService):
 
     def add_document(self, kb_file, **kwargs):
         docs = kb_file.docs2texts(kb_file.file2docs())
+
         vector_store = self._load_vector_store()
-        vector_store.add_documents(docs)
 
         # 构造文本块和元数据的列表，假设 kb_file.docs2texts 返回的是文本内容
-        # texts = [doc.page_content for doc in docs]
-        # metadata = [doc.metadata for doc in docs]
-        #
+        texts = [doc.page_content for doc in docs]
+        metadata = [doc.metadata for doc in docs]
+
         # 将文本和对应的元数据添加到向量存储中
-        # vector_store.add_texts(texts, metadata=metadata)
+        vector_store.add_texts(texts, metadatas=metadata)
 
         if not kwargs.get("not_refresh_vs_cache"):
             vector_store.save_local(self.vb_path)
-        # TODO how to relate the document_id with the document
-        num_docs = vector_store.index.ntotal
-        print(num_docs)
-        print(vector_store.index_to_docstore_id)
-
-        print(vector_store.similarity_search("网络安全是?", k=1))
 
 
     def search(self, query, k=3):
@@ -67,14 +53,10 @@ class FaissKBService(KBService):
         aggregated_result = ""
         for i, doc in enumerate(similar_docs):
             content = doc.page_content
-            path = doc.metadata["path"]
-            doc_id = doc.metadata["doc_id"]
+            path = doc.metadata["source"]
 
-            aggregated_result += f"Document {i + 1} (Path: {path}, Doc ID: {doc_id}):\n{content}\n\n"
+            aggregated_result += f"Document {i + 1} (Path: {path}):\n{content}\n\n"
 
-        # 输出聚合结果
-        print("Aggregated Result of Top 3 Documents:")
-        print(aggregated_result)
         return aggregated_result
 
     def update_document(self, document_id, new_document):
