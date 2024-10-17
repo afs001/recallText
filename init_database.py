@@ -18,7 +18,7 @@ from langchain_text_splitters import TextSplitter, MarkdownHeaderTextSplitter
 
 from chat_kernel.configs.db_configs import *
 from chat_kernel.connector.database import faissService
-from chat_kernel.utils.loader.pdf_loader import OCRPDFLoader
+from chat_kernel.utils.loader import OCRPDFLoader, NewOCRPDFLoader
 from chat_kernel.utils.splitter import (
     zh_title_enhance as func_zh_title_enhance,
 )
@@ -155,7 +155,7 @@ class KnowledgeFile:
         """
         if self.docs is None or refresh:
             try:
-                loader = OCRPDFLoader(self.filepath)
+                loader = NewOCRPDFLoader(self.filepath)
                 if isinstance(loader, TextLoader):
                     loader.encoding = "utf8"
                 self.docs = loader.load()
